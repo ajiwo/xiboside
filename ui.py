@@ -97,7 +97,7 @@ class MediaView(QObject):
         return self._widget
 
     def set_geometry(self, left=0, top=0, width=100, height=100):
-        self._widget.setGeometry(int(left), int(top), int(width), int(height))
+        self._widget.setGeometry(int(float(left)), int(float(top)), int(float(width)), int(float(height)))
 
 
 class ImageMediaView(MediaView):

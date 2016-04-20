@@ -33,3 +33,28 @@ If you have edited the configuration file and placed it on other location, invok
 If that `/path/to/config.cfg` is not there, xiboside will write the default configuration to that file.
 
 
+Note:  
+On the CMS, you need to set the display Settings Profile to Android  
+`Display -> Edit -> Advanced -> Settings Profile -> Android`
+
+
+### Spec Notes
+Implemented xmds verbs: 
+* registerDisplay
+* requiredFiles
+* schedule
+* getFile
+* getResource.
+
+Unimplemented xlf handling:
+* layout z-index, region z-index
+* schedule priority
+* schedule ordering (play only the first found schedule)
+* layout background image
+* you tell me...
+
+Supported Media type:
+* Video (always scaled, aspect ratio ignored)
+* Webpage: native, embedded, text, clock
+* Image (always scaled, aspect ratio ignored)
+

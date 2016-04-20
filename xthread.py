@@ -259,20 +259,25 @@ class PlayThread(QThread):
         if not region:
             return None
 
-        self.play_region_sig.emit(region)
-        self.log.info(currentThread().getName() + ' Starting')
-        for media in region['media']:
-            media['layout_id'] = region['layout_id']
-            media['region'] = {
-                'id': region['id'],
-                'left': region['left'],
-                'top': region['top'],
-                'width': region['width'],
-                'height': region['height']
-            }
-            media['save_dir'] = self.config.saveDir
-            media['res_ext'] = self.config.res_file_ext
-            self.__play_media(media)
+        loop = False
+        if 'loop' in region['options']:
+            loop = bool(int(region['options']['loop']))
+
+        while loop and not self.__play_stop:
+            self.play_region_sig.emit(region)
+            self.log.info(currentThread().getName() + ' Starting')
+            for media in region['media']:
+                media['layout_id'] = region['layout_id']
+                media['region'] = {
+                    'id': region['id'],
+                    'left': region['left'],
+                    'top': region['top'],
+                    'width': region['width'],
+                    'height': region['height']
+                }
+                media['save_dir'] = self.config.saveDir
+                media['res_ext'] = self.config.res_file_ext
+                self.__play_media(media)
         self.log.info(currentThread().getName() + ' Finished')
 
     def media_listed(self, media):

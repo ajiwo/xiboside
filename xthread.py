@@ -263,7 +263,7 @@ class PlayThread(QThread):
         if 'loop' in region['options']:
             loop = bool(int(region['options']['loop']))
 
-        while loop and not self.__play_stop:
+        while not self.__play_stop:
             self.play_region_sig.emit(region)
             self.log.info(currentThread().getName() + ' Starting')
             for media in region['media']:
@@ -278,6 +278,8 @@ class PlayThread(QThread):
                 media['save_dir'] = self.config.saveDir
                 media['res_ext'] = self.config.res_file_ext
                 self.__play_media(media)
+            if not loop:
+                break
         self.log.info(currentThread().getName() + ' Finished')
 
     def media_listed(self, media):

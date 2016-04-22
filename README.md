@@ -13,7 +13,7 @@ On Ubuntu 14.04, this line will satisfy the dependencies:
 
 ### Running xiboside
 ```
-xiboside`  
+xiboside
 ```
 ```
   The configuration file xiboside_config.json is not exists  
@@ -44,7 +44,7 @@ Implemented xmds verbs:
 * requiredFiles
 * schedule
 * getFile
-* getResource.
+* getResource
 
 Unimplemented xlf handling:
 * layout z-index, region z-index

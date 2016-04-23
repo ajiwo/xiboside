@@ -76,6 +76,11 @@ class Client:
                                                          getattr(params, 'mediaId'))
                 tmp = GetResourceResponse()
 
+            elif 'submitStats'.lower() == method.lower():
+                text = self.__client.service.SubmitStats(self.__keys['server'], self.__keys['hardware'],
+                                                         params.dumps())
+                tmp = SuccessResponse()
+
         except SoapFault as err:
             log.error(err)
         except exceptions.IOError as err:
@@ -249,6 +254,60 @@ class GetResourceResponse:
 
     def parse(self, text):
         if text and len(text) > 0:
+            self.content = text
+            return True
+
+        return False
+
+
+class _XmlParam(object):
+    def __init__(self, tag):
+        xml = '<?xml version="1.0" encoding="UTF-8" ?>'
+        self._tag = xml + "\n<{0}>%s</{0}>".format(tag)
+        self._tmp = ''
+
+    def dumps(self):
+        return self._tag % self._tmp
+
+
+class MediaInventoryParam(_XmlParam):
+    def __init__(self):
+        super(MediaInventoryParam, self).__init__('files')
+
+    def add(self, id_, complete, md5, last_checked):
+        tmp = '<{} id="{}" complete="{}" md5="{}" lastChecked="{}" />'.format(
+            'file', id_, complete, md5, last_checked
+        )
+        self._tmp += tmp
+
+
+class SubmitLogParam(_XmlParam):
+    def __init__(self):
+        super(SubmitLogParam, self).__init__('logs')
+
+    def add(self, date, category, type_, message, method, thread):
+        tmp = '<{} date="{}" category="{}" type="{}" message="{}" method="{}" thread="{}" />'.format(
+            'log', date, category, type_, message, method, thread
+        )
+        self._tmp += tmp
+
+
+class SubmitStatsParam(_XmlParam):
+    def __init__(self):
+        super(SubmitStatsParam, self).__init__('stats')
+
+    def add(self, type_, from_date, to_date, schedule_id, layout_id, media_id):
+        self._tmp += '<{} type="{}" fromdt="{}" todt="{}" scheduleid="{}" layoutid="{}" mediaid="{}" />'.format(
+            'stat', type_, from_date, to_date, schedule_id, layout_id, media_id
+        )
+
+
+class SuccessResponse(object):
+    def __init__(self):
+        self.content = None
+
+    def parse(self, text):
+        if text:
             self.content = text
             return True
 

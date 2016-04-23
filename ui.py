@@ -304,9 +304,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(QWidget(self))
 
     @Slot(str, tuple)
-    def set_layout_id(self, layout_id, layout_time):
-        self.log.debug('set_layout_id(%s, (%d, %d))' %
-                       (layout_id, layout_time[0], layout_time[1]))
+    def set_layout_id(self, layout_id, schedule_id, layout_time):
+        self.log.debug('set_layout_id(%s, %s, (%d, %d))' %
+                       (layout_id, schedule_id, layout_time[0], layout_time[1]))
 
         if self.__layout_id != layout_id:
             self.log.debug('set_layout_id got different layout')
@@ -316,7 +316,7 @@ class MainWindow(QMainWindow):
         self.__layout_id = layout_id
         self.__layout_time = layout_time
 
-        if self.__layout_time[0] and self.__layout_time[1]:
+        if schedule_id and self.__layout_time[0] and self.__layout_time[1]:
             # If it's a scheduled layout, check the stop time, then schedule a stop
             self.__layout_timer.stop()
             t1 = layout_time[1] - time.time()

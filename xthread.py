@@ -17,7 +17,7 @@ class XmdsThread(QThread):
     log = logging.getLogger('xiboside.XmdsThread')
     downloading_sig = Signal(str, str)
     downloaded_sig = Signal(object)
-    layout_sig = Signal(str, tuple)
+    layout_sig = Signal(str, str, tuple)
 
     __xmds_stop = False
     __xmds_running = False
@@ -156,9 +156,9 @@ class XmdsThread(QThread):
                 self.layout_id = schedule.layout
                 self.schedule_id = None
                 self.layout_time = (0, 0)
-            self.log.debug('emitting layout_sig(%s, (%d, %d))' %
-                           (self.layout_id, self.layout_time[0], self.layout_time[1]))
-            self.layout_sig.emit(self.layout_id, self.layout_time)
+            self.log.debug('emitting layout_sig(%s, %s, (%d, %d))' %
+                           (self.layout_id, self.schedule_id, self.layout_time[0], self.layout_time[1]))
+            self.layout_sig.emit(self.layout_id, self.schedule_id, self.layout_time)
             next_collect_time = time.time() + float(collect_interval)
             while time.time() < next_collect_time and not self.__xmds_stop:
                 self.msleep(250)

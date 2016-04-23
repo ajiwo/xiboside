@@ -312,7 +312,7 @@ class MainWindow(QMainWindow):
             self.log.debug('set_layout_id got different layout')
             self.stop_all_media()
 
-        self.__play_thread.set_layout_id(layout_id, layout_time)
+        self.__play_thread.set_layout_id(layout_id, schedule_id, layout_time)
         self.__layout_id = layout_id
         self.__layout_time = layout_time
 

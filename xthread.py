@@ -190,6 +190,7 @@ class PlayThread(QThread):
         self.__play_running = False
         self.__play_stop = False
         self.__layout_id = None
+        self.__schedule_id = None
         self.__layout_time = (0, 0)
         self.config = config
         if self.playing_media_list is None:
@@ -197,8 +198,9 @@ class PlayThread(QThread):
         self.log.setLevel(logging.DEBUG)
 
     @Slot(str)
-    def set_layout_id(self, layout_id, layout_time):
+    def set_layout_id(self, layout_id, schedule_id, layout_time):
         self.__layout_id = layout_id
+        self.__schedule_id = schedule_id
         self.__layout_time = layout_time
 
     @Slot()

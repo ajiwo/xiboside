@@ -42,9 +42,9 @@ class MediaView(QObject):
         self._duration = 0
         self._widget = None
         self._media = None
-        self._started = False
+        self._started = 0
         self._playing = False
-        self._finished = False
+        self._finished = 0
         self._ready = False
         self._play_timer = QTimer(self)
         self._connect_signals()
@@ -66,23 +66,23 @@ class MediaView(QObject):
 
     @Slot()
     def mark_started(self):
-        self._started = True
+        self._started = time.time()
 
     @Slot()
     def mark_finished(self):
-        self._finished = True
+        self._finished = time.time()
 
     def is_ready(self):
         return self._ready
 
     def is_started(self):
-        return self._started
+        return self._started > 0
 
     def is_playing(self):
         return self.is_started() and not self.is_finished()
 
     def is_finished(self):
-        return self._finished
+        return self._finished > 0
 
     def set_media(self, media):
         self._media = media

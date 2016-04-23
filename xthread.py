@@ -1,9 +1,7 @@
 import calendar
 import logging
 import os
-import sys
 import time
-import uuid
 from hashlib import md5
 from threading import Thread, currentThread
 
@@ -32,9 +30,9 @@ class XmdsThread(QThread):
         self.layout_time = None
         if not os.path.isdir(config.saveDir):
             os.mkdir(config.saveDir, 0o700)
-        self.__set_identity()
+        # self.__set_identity()
         self.xmdsClient = xmds.Client(config.url)
-        self.xmdsClient.set_keys(config.serverKey, self.__hardware_key)
+        self.xmdsClient.set_keys(config.serverKey)
         self.log.setLevel(logging.DEBUG)
 
     def __enter__(self):
@@ -44,12 +42,6 @@ class XmdsThread(QThread):
         self.stop()
         if exc_tb or exc_type or exc_val:
             pass
-
-    def __set_identity(self):
-        node = uuid.getnode()  # TODO: Explicit network interface name eg: eth0, wlan0, ...
-        self.__mac_address = ':'.join([str('%012x' % node)[x:x+2] for x in range(0, 12, 2)])
-        url = 'xiboside://%s/%s/%s' % (sys.platform, os.name, self.__mac_address)
-        self.__hardware_key = uuid.uuid3(uuid.NAMESPACE_URL, url)
 
     @Slot()
     def stop(self):
@@ -122,7 +114,7 @@ class XmdsThread(QThread):
         while not self.__xmds_stop:
             self.log.info('__xmds_cycle started')
             cl = self.xmdsClient
-            param = xmds.RegisterDisplayParam(mac_address=self.__mac_address)
+            param = xmds.RegisterDisplayParam()
             registered = cl.send_request('RegisterDisplay', param)
 
             if isinstance(registered, xmds.RegisterDisplayResponse):

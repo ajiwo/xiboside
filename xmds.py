@@ -1,6 +1,8 @@
 import base64
 import exceptions
 import logging
+import os
+import sys
 import uuid
 from suds import WebFault as SoapFault
 from suds.client import Client as SoapClient
@@ -20,8 +22,20 @@ class Client:
         }
         self.__url = url
         self.__ver = ver
+        self.__mac_address = None
         self.__client = None
+        self.__set_identity()
         self.connect()
+
+    def __set_identity(self):
+        node = uuid.getnode()  # TODO: Explicit network interface name eg: eth0, wlan0, ...
+        self.__mac_address = ':'.join([str('%012x' % node)[x:x + 2] for x in range(0, 12, 2)])
+        url = 'xiboside://%s/%s/%s' % (sys.platform, os.name, self.__mac_address)
+        self.__keys['hardware'] = uuid.uuid3(uuid.NAMESPACE_URL, url)
+
+    @property
+    def mac_address(self):
+        return self.__mac_address
 
     def was_connected(self):
         return self.__client and self.__client.wsdl is not None
@@ -35,10 +49,8 @@ class Client:
 
         return self.__client is not None
 
-    def set_keys(self, server=None, hardware=None):
-        self.__keys['server'] = server
-        if hardware and isinstance(hardware, uuid.UUID):
-            self.__keys['hardware'] = str(hardware)
+    def set_keys(self, server_key=None):
+        self.__keys['server'] = server_key
 
     def send_request(self, method=None, params=None):
         if not self.was_connected():
@@ -50,6 +62,7 @@ class Client:
         tmp = None
         try:
             if 'registerDisplay'.lower() == method.lower():
+                params.macAddress = self.__mac_address
                 text = self.__client.service.RegisterDisplay(self.__keys['server'], self.__keys['hardware'],
                                                              getattr(params, 'name'), getattr(params, 'type'),
                                                              getattr(params, 'version'), getattr(params, 'code'),

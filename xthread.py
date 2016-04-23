@@ -27,7 +27,8 @@ class XmdsThread(QThread):
         self.config = config
         self.__mac_address = None
         self.__hardware_key = None
-        self.layout = None
+        self.layout_id = None
+        self.schedule_id = None
         self.layout_time = None
         if not os.path.isdir(config.saveDir):
             os.mkdir(config.saveDir, 0o700)
@@ -142,7 +143,8 @@ class XmdsThread(QThread):
                     to_time = self.__str_to_epoch(layout.todt)
                     now_time = time.time()
                     if from_time <= now_time <= to_time:
-                        self.layout = layout.file
+                        self.layout_id = layout.file
+                        self.schedule_id = layout.scheduleid
                         self.layout_time = (from_time, to_time)
                         schedule_found = True
                         break  # simultaneous scheduled layout is not supported yet
@@ -151,11 +153,12 @@ class XmdsThread(QThread):
             # if schedule.layouts ...
             if not schedule_found:
                 """ play default layout """
-                self.layout = schedule.layout
+                self.layout_id = schedule.layout
+                self.schedule_id = None
                 self.layout_time = (0, 0)
             self.log.debug('emitting layout_sig(%s, (%d, %d))' %
-                           (self.layout, self.layout_time[0], self.layout_time[1]))
-            self.layout_sig.emit(self.layout, self.layout_time)
+                           (self.layout_id, self.layout_time[0], self.layout_time[1]))
+            self.layout_sig.emit(self.layout_id, self.layout_time)
             next_collect_time = time.time() + float(collect_interval)
             while time.time() < next_collect_time and not self.__xmds_stop:
                 self.msleep(250)

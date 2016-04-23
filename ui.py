@@ -329,9 +329,8 @@ class MainWindow(QMainWindow):
         self.recreate_play_thread()
         self.recreate_xmds_thread()
 
-    def play_layout(self, layout, layout_id):
-        if self.__layout_id != layout_id:
-            self.__layout_id = layout_id
+    def play_layout(self, layout):
+        self.__layout_id = layout['id']
 
         if 'bgcolor' in layout:
             style = "QWidget {background-color: %s;}" % layout['bgcolor']

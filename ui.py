@@ -364,18 +364,15 @@ class MainWindow(QMainWindow):
 
     def play_web_media(self, media):
         view = WebMediaView(media, self)
-        if not self.__mediaview_list.count(view):
-            view.play()
-            self.append_mediaview(view)
+        view.play()
+        self.append_mediaview(view)
 
     def play_image_media(self, media):
         view = ImageMediaView(media, self)
-        if not self.__mediaview_list.count(view):
-            view.play()
-            self.append_mediaview(view)
+        view.play()
+        self.append_mediaview(view)
 
     def play_video_media(self, media):
         view = VideoMediaView(media, self)
-        if not self.__mediaview_list.count(view):
-            view.play()
-            self.append_mediaview(view)
+        view.play()
+        self.append_mediaview(view)

@@ -307,17 +307,15 @@ class MainWindow(QMainWindow):
     def set_layout_id(self, layout_id, layout_time):
         self.log.debug('set_layout_id(%s, (%d, %d))' %
                        (layout_id, layout_time[0], layout_time[1]))
-        if self.__layout_id is None:
-            self.__layout_id = layout_id
-            self.__layout_time = layout_time
-            self.__play_thread.set_layout_id(layout_id, layout_time)
-        elif self.__layout_id != layout_id:
-            self.__layout_id = layout_id
-            self.__layout_time = layout_time
+
+        if self.__layout_id != layout_id:
             self.log.debug('set_layout_id got different layout')
-            self.__play_thread.set_layout_id(layout_id, layout_time)
             self.stop_all_media()
+
         self.__play_thread.set_layout_id(layout_id, layout_time)
+        self.__layout_id = layout_id
+        self.__layout_time = layout_time
+
         if self.__layout_time[0] and self.__layout_time[1]:
             # If it's a scheduled layout, check the stop time, then schedule a stop
             self.__layout_timer.stop()

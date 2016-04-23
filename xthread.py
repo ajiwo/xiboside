@@ -178,7 +178,7 @@ class XmdsThread(QThread):
 
 class PlayThread(QThread):
     log = logging.getLogger('xiboside.PlayThread')
-    play_layout_sig = Signal(dict, str)
+    play_layout_sig = Signal(dict)
     play_region_sig = Signal(dict)
     play_media_sig = Signal(dict)
     layout_expired_sig = Signal(str)
@@ -229,8 +229,11 @@ class PlayThread(QThread):
             file_path = self.config.saveDir + '/' + self.__layout_id + self.config.layout_file_ext
             xlf_layout = xlf.Xlf(file_path)
             if xlf_layout:
-                self.play_layout_sig.emit(xlf_layout.layout, self.__layout_id)
-                self.__play_layout(xlf_layout.layout, self.__layout_id)
+                layout = xlf_layout.layout
+                layout['id'] = self.__layout_id
+                layout['schedule_id'] = self.__schedule_id
+                self.play_layout_sig.emit(layout)
+                self.__play_layout(layout)
                 self.log.info('__play_layout finished')
             # if not same_id:
             #     pass
@@ -239,7 +242,7 @@ class PlayThread(QThread):
         self.log.info('__play_cycle finished')
         self.__play_running = False
 
-    def __play_layout(self, layout, layout_id):
+    def __play_layout(self, layout):
         if layout is None:
             return None
         if self.__play_stop:
@@ -248,7 +251,8 @@ class PlayThread(QThread):
         threads = []
 
         for region in layout['regions']:
-            region['layout_id'] = str(layout_id)
+            region['layout_id'] = layout['id']
+            region['schedule_id'] = layout['schedule_id']
             t = Thread(target=self.__play_region, name='__play_region_{0}'.format(region['id']), args=(region,))
             t.setDaemon(True)
             t.start()
@@ -273,6 +277,7 @@ class PlayThread(QThread):
             self.log.info(currentThread().getName() + ' Starting')
             for media in region['media']:
                 media['layout_id'] = region['layout_id']
+                media['schedule_id'] = region['schedule_id']
                 media['region'] = {
                     'id': region['id'],
                     'left': region['left'],

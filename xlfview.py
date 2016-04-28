@@ -108,6 +108,7 @@ class ImageMediaView(MediaView):
 
     @Slot()
     def play(self):
+        self._finished = 0
         path = "%s/%s" % (self._save_dir, self._options['uri'])
         rect = self._widget.geometry()
         self._img.load(path)
@@ -211,6 +212,7 @@ class WebMediaView(MediaView):
 
     @Slot()
     def play(self):
+        self._finished = 0
         path = "%s/%s_%s_%s.html" % (
             self._save_dir,
             self._layout_id, self._region_id, self._id

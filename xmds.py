@@ -233,6 +233,26 @@ class ScheduleResponse:
         self.content = text
         return True
 
+    def parse_file(self, path):
+        try:
+            with open(path, 'r') as f:
+                return self.parse(f.read())
+        except IOError:
+            return False
+
+    def save_as(self, path):
+        if not self.content:
+            return 0
+        try:
+            with open(path, 'w') as f:
+                written = f.write(self.content)
+                f.flush()
+                os.fsync(f.fileno())
+        except IOError:
+            written = 0
+
+        return written
+
 
 class GetFileParam:
     def __init__(self, file_id='', file_type='', offset=0, size=0):

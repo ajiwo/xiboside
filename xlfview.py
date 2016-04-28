@@ -143,6 +143,7 @@ class VideoMediaView(MediaView):
         self._widget = QWidget(parent)
         self._std_out = []
         self._widget.setGeometry(media['_geometry'])
+        self.connect(self._process, SIGNAL("finished()"), self.stop)
         self.connect(self._process, SIGNAL("readyReadStandardOutput()"), self.__grep_std_out)
         self.set_default_widget_prop()
 
@@ -190,11 +191,7 @@ class VideoMediaView(MediaView):
                     self.started_signal.emit()
                 else:
                     part = line.split("=")
-                    if 'ID_EXIT' == part[0]:
-                        if not self.is_finished():
-                            self.finished_signal.emit()
-                        # self.stop()
-                    elif 'ID_LENGTH' == part[0]:
+                    if 'ID_LENGTH' == part[0]:
                         self._play_timer.setInterval(int(1000 * float(part[1])))
 
 

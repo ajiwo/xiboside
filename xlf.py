@@ -1,13 +1,17 @@
 from xml.etree import ElementTree
+import logging
+log = logging.getLogger('xiboside.xlf')
 
 
 def parse_file(path):
     layout = None
     try:
         _xlf = Xlf(path)
-    except ElementTree.ParseError:
+    except ElementTree.ParseError, err:
+        log.error(err.message)
         return None
-    except IOError:
+    except IOError, err:
+        log.error("%s: %s" % (err.strerror, err.filename))
         return None
     if _xlf.layout:
         layout = dict(_xlf.layout)

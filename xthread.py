@@ -25,9 +25,9 @@ class XmdsThread(QThread):
         self.__xmds_stop = False
         self.__xmds_running = False
         self.single_shot = False
-        self.layout_id = None
-        self.schedule_id = None
-        self.layout_time = None
+        self.layout_id = '0'
+        self.schedule_id = '0'
+        self.layout_time = (0, 0)
         if not os.path.isdir(config.saveDir):
             os.mkdir(config.saveDir, 0o700)
         self.xmdsClient = xmds.Client(config.url)
@@ -137,7 +137,7 @@ class XmdsThread(QThread):
                     schedule = sched_resp
 
             schedule_found = False
-            if schedule.layouts:
+            if schedule and schedule.layouts:
                 for layout in schedule.layouts:
                     from_time = self.__str_to_epoch(layout.fromdt)
                     to_time = self.__str_to_epoch(layout.todt)
@@ -151,7 +151,7 @@ class XmdsThread(QThread):
                         #  ----+ stop on first scheduled layout
                 # for layout ...
             # if schedule.layouts ...
-            if not schedule_found:
+            if schedule and not schedule_found:
                 """ play default layout """
                 self.layout_id = schedule.layout
                 self.schedule_id = None

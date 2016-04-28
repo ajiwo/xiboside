@@ -142,6 +142,7 @@ class VideoMediaView(MediaView):
         self._process.setObjectName('%s-process' % self.objectName())
         self._widget = QWidget(parent)
         self._std_out = []
+        self._stopping = False
         self._widget.setGeometry(media['_geometry'])
         self.connect(self._process, SIGNAL("finished()"), self.stop)
         self.connect(self._process, SIGNAL("readyReadStandardOutput()"), self.__grep_std_out)
@@ -162,6 +163,9 @@ class VideoMediaView(MediaView):
 
     @Slot()
     def stop(self, delete_widget=False):
+        if self._stopping:
+            return False
+        self._stopping = True
         if self._process:
             tries = 10
             while tries > 0 and self._process.state() == QProcess.ProcessState.Running:
@@ -179,7 +183,8 @@ class VideoMediaView(MediaView):
                 self._widget = None
         if not self.is_finished():
             self.finished_signal.emit()
-
+        self._stopping = False
+        return True
     @Slot()
     def __grep_std_out(self):
         lines = self._process.readAllStandardOutput().split("\n")

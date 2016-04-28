@@ -7,7 +7,8 @@ def parse_file(path):
         _xlf = Xlf(path)
     except ElementTree.ParseError:
         return None
-
+    except IOError:
+        return None
     if _xlf.layout:
         layout = dict(_xlf.layout)
         _xlf = None

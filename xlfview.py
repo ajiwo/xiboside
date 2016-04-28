@@ -112,8 +112,8 @@ class ImageMediaView(MediaView):
         path = "%s/%s" % (self._save_dir, self._options['uri'])
         rect = self._widget.geometry()
         self._img.load(path)
-        self._img.scaled(rect.width(), rect.height(),
-                         Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        self._img = self._img.scaled(rect.width(), rect.height(),
+                                     Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
         self._widget.setPixmap(QPixmap.fromImage(self._img))
         self._widget.show()
@@ -187,6 +187,7 @@ class VideoMediaView(MediaView):
             self.finished_signal.emit()
         self._stopping = False
         return True
+
     @Slot()
     def __grep_std_out(self):
         lines = self._process.readAllStandardOutput().split("\n")

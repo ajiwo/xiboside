@@ -1,6 +1,20 @@
 from xml.etree import ElementTree
 
 
+def parse_file(path):
+    layout = None
+    try:
+        _xlf = Xlf(path)
+    except ElementTree.ParseError:
+        return None
+
+    if _xlf.layout:
+        layout = dict(_xlf.layout)
+        _xlf = None
+        del _xlf
+    return layout
+
+
 class Xlf:
     def __init__(self, path=None):
         self.layout = None

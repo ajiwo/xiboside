@@ -162,13 +162,11 @@ class VideoMediaView(MediaView):
     @Slot()
     def stop(self, delete_widget=False):
         if self._process:
-            if self._process.isOpen():
+            tries = 10
+            while tries > 0 and self._process.state() == QProcess.ProcessState.Running:
+                tries -= 1
                 self._process.write("stop\n")
-                if not self._process.waitForFinished(500):
-                    self._process.kill()
-
-            if self._process.isOpen():
-                self._process.close()
+                self._process.waitForBytesWritten(100)
 
         if self._widget:
             tries = 10

@@ -40,6 +40,8 @@ class MediaView(QObject):
 
         self._started = 0
         self._finished = 0
+
+        self._errors = None
         # self.setObjectName('Media-%s-%s' % (self._type, self._id))
         # self._play_timer.setObjectName('%s-timer' % self.objectName())
         self._connect_signals()
@@ -142,11 +144,18 @@ class VideoMediaView(MediaView):
         self._process.setObjectName('%s-process' % self.objectName())
         self._widget = QWidget(parent)
         self._std_out = []
+        self._errors = []
         self._stopping = False
         self._widget.setGeometry(media['_geometry'])
+        self.connect(self._process, SIGNAL("error()"), self._process_error)
         self.connect(self._process, SIGNAL("finished()"), self.stop)
         self.connect(self._process, SIGNAL("readyReadStandardOutput()"), self.__grep_std_out)
         self.set_default_widget_prop()
+
+    @Slot(object)
+    def _process_error(self, err):
+        self._errors.append(err)
+        self.stop()
 
     @Slot()
     def play(self):

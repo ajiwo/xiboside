@@ -146,6 +146,10 @@ class VideoMediaView(MediaView):
         self._std_out = []
         self._errors = []
         self._stopping = False
+        self._mute = False
+        if 'mute' in self._options:
+            self._mute = bool(int(self._options['mute']))
+
         self._widget.setGeometry(media['_geometry'])
         self.connect(self._process, SIGNAL("error()"), self._process_error)
         self.connect(self._process, SIGNAL("finished()"), self.stop)
@@ -168,6 +172,9 @@ class VideoMediaView(MediaView):
             '-wid', str(int(self._widget.winId())),
             path
         ]
+        if self._mute:
+            args += ['-ao', 'null']
+
         self._process.start('mplayer', args)
 
     @Slot()

@@ -182,14 +182,10 @@ class VideoMediaView(MediaView):
         if self._stopping:
             return False
         self._stopping = True
-        if self._process:
-            tries = 10
-            while tries > 0 and self._process.state() == QProcess.ProcessState.Running:
-                tries -= 1
-                self._process.write("stop\n")
-                self._process.waitForBytesWritten(100)
-            if self._process.state() == QProcess.ProcessState.Running:
-                self._process.close()
+        if self._process.state == QProcess.ProcessState.Running:
+            self._process.write("quit\n")
+            self._process.waitForFinished(50)
+            self._process.close()
 
         if self._widget:
             tries = 10

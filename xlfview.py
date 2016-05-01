@@ -221,6 +221,7 @@ class WebMediaView(MediaView):
             self._save_dir,
             self._layout_id, self._region_id, self._id
         )
+        self._widget.load("about:blank")
         if 'webpage' == str(self._type) and 'native' == str(self._render):
             url = self._options['uri']
             self._widget.load(QUrl.fromPercentEncoding(url))

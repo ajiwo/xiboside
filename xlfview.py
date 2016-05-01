@@ -72,7 +72,16 @@ class MediaView(QObject):
 
     @Slot()
     def stop(self, delete_widget=False):
-        pass
+        if self._widget:
+            tries = 10
+            while tries > 0 and not self._widget.close():
+                tries -= 1
+                time.sleep(0.05)
+            if delete_widget:
+                del self._widget
+                self._widget = None
+
+        self.finished_signal.emit()
 
     @Slot()
     def mark_started(self):
@@ -125,17 +134,6 @@ class ImageMediaView(MediaView):
         self._play_timer.start()
         self.started_signal.emit()
 
-    @Slot()
-    def stop(self, delete_widget=False):
-        if self._widget:
-            while not self._widget.close():
-                time.sleep(0.25)
-            if delete_widget:
-                del self._widget
-                self._widget = None
-
-        self.finished_signal.emit()
-
 
 class VideoMediaView(MediaView):
     def __init__(self, media, parent):
@@ -187,16 +185,7 @@ class VideoMediaView(MediaView):
             self._process.waitForFinished(50)
             self._process.close()
 
-        if self._widget:
-            tries = 10
-            while tries > 0 and not self._widget.close():
-                tries -= 1
-                time.sleep(0.25)
-            if delete_widget:
-                del self._widget
-                self._widget = None
-        if not self.is_finished():
-            self.finished_signal.emit()
+        super(VideoMediaView, self).stop(delete_widget)
         self._stopping = False
         return True
 
@@ -243,18 +232,6 @@ class WebMediaView(MediaView):
         self._play_timer.setInterval(int(float(self._duration) * 1000))
         self._play_timer.start()
         self.started_signal.emit()
-
-    @Slot()
-    def stop(self, delete_widget=False):
-        if self._widget:
-            self._widget.stop()
-            while not self._widget.close():
-                time.sleep(0.25)
-            if delete_widget:
-                del self._widget
-                self._widget = None
-
-        self.finished_signal.emit()
 
 
 class RegionView:

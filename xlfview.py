@@ -72,6 +72,8 @@ class MediaView(QObject):
 
     @Slot()
     def stop(self, delete_widget=False):
+        if self.is_finished():
+            return False
         if self._widget:
             tries = 10
             while tries > 0 and not self._widget.close():
@@ -82,6 +84,7 @@ class MediaView(QObject):
                 self._widget = None
 
         self.finished_signal.emit()
+        return True
 
     @Slot()
     def mark_started(self):

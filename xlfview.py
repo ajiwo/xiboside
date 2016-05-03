@@ -1,3 +1,5 @@
+import os
+import signal
 import time
 
 from PySide.QtCore import QObject
@@ -157,6 +159,19 @@ class VideoMediaView(MediaView):
         self.connect(self._process, SIGNAL("readyReadStandardOutput()"), self.__grep_std_out)
         self.set_default_widget_prop()
 
+        self._stop_timer = QTimer(self)
+        self._stop_timer.setSingleShot(True)
+        self._stop_timer.setInterval(1000)
+        self._stop_timer.timeout.connect(self._force_stop)
+
+    @Slot()
+    def _force_stop(self):
+        os.kill(self._process.pid(), signal.SIGTERM)
+        self._stopping = False
+        if not self.is_started():
+            self.started_signal.emit()
+        super(VideoMediaView, self).stop()
+
     @Slot(object)
     def _process_error(self, err):
         self._errors.append(err)
@@ -177,11 +192,13 @@ class VideoMediaView(MediaView):
             args += ['-ao', 'null']
 
         self._process.start('mplayer', args)
+        self._stop_timer.start()
 
     @Slot()
     def stop(self, delete_widget=False):
         if self._stopping or self.is_finished():
             return False
+        self._stop_timer.start()
         self._stopping = True
         if self._process.state() == QProcess.ProcessState.Running:
             self._process.write("quit\n")
@@ -190,6 +207,7 @@ class VideoMediaView(MediaView):
 
         super(VideoMediaView, self).stop(delete_widget)
         self._stopping = False
+        self._stop_timer.stop()
         return True
 
     @Slot()
@@ -201,6 +219,7 @@ class VideoMediaView(MediaView):
                     self._widget.raise_()
                     self._play_timer.start()
                     self.started_signal.emit()
+                    self._stop_timer.stop()
                 else:
                     part = line.split("=")
                     if 'ID_LENGTH' == part[0]:

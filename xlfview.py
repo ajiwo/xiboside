@@ -141,9 +141,9 @@ class ImageMediaView(MediaView):
 class VideoMediaView(MediaView):
     def __init__(self, media, parent):
         super(VideoMediaView, self).__init__(media, parent)
-        self._process = QProcess(self._parent)
-        self._process.setObjectName('%s-process' % self.objectName())
         self._widget = QWidget(parent)
+        self._process = QProcess(self._widget)
+        self._process.setObjectName('%s-process' % self.objectName())
         self._std_out = []
         self._errors = []
         self._stopping = False

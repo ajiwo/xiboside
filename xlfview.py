@@ -180,7 +180,7 @@ class VideoMediaView(MediaView):
 
     @Slot()
     def stop(self, delete_widget=False):
-        if self._stopping:
+        if self._stopping or self.is_finished():
             return False
         self._stopping = True
         if self._process.state() == QProcess.ProcessState.Running:

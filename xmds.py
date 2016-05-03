@@ -105,6 +105,33 @@ class Client:
         return response
 
 
+class _XmdsResponse(object):
+    def __init__(self):
+        self.content = None
+
+    def parse(self, text):
+        return False
+
+    def save_as(self, path):
+        if not self.content:
+            return 0
+        try:
+            with open(path, 'w') as f:
+                written = f.write(self.content)
+                f.flush()
+                os.fsync(f.fileno())
+        except IOError:
+            written = 0
+        return written
+
+    def parse_file(self, path):
+        try:
+            with open(path, 'r') as f:
+                return self.parse(f.read())
+        except IOError:
+            return False
+
+
 class RegisterDisplayParam:
     def __init__(self, display_name='xiboside', display_type='android', version='1.0',
                  code=1, operating_system='Linux', mac_address=''):
@@ -159,10 +186,10 @@ class RequiredFilesEntry:
         self.updated = 0
 
 
-class RequiredFilesResponse:
+class RequiredFilesResponse(_XmdsResponse):
     def __init__(self):
+        super(RequiredFilesResponse, self).__init__()
         self.files = None
-        self.content = None
 
     def parse(self, text):
         if not text:
@@ -197,12 +224,12 @@ class ScheduleLayoutEntry:
         self.dependents = None
 
 
-class ScheduleResponse:
+class ScheduleResponse(_XmdsResponse):
     def __init__(self):
+        super(ScheduleResponse, self).__init__()
         self.layout = ''
         self.layouts = []  # ScheduleLayoutEntry
         self.dependants = []
-        self.content = None
 
     def parse(self, text):
         if not text:
@@ -233,26 +260,6 @@ class ScheduleResponse:
         self.content = text
         return True
 
-    def parse_file(self, path):
-        try:
-            with open(path, 'r') as f:
-                return self.parse(f.read())
-        except IOError:
-            return False
-
-    def save_as(self, path):
-        if not self.content:
-            return 0
-        try:
-            with open(path, 'w') as f:
-                written = f.write(self.content)
-                f.flush()
-                os.fsync(f.fileno())
-        except IOError:
-            written = 0
-
-        return written
-
 
 class GetFileParam:
     def __init__(self, file_id='', file_type='', offset=0, size=0):
@@ -262,9 +269,9 @@ class GetFileParam:
         self.chuckSize = size
 
 
-class GetFileResponse:
+class GetFileResponse(_XmdsResponse):
     def __init__(self):
-        self.content = None
+        super(GetFileResponse, self).__init__()
 
     def parse(self, text):
         if text and len(text) > 0:
@@ -281,9 +288,9 @@ class GetResourceParam:
         self.mediaId = media_id
 
 
-class GetResourceResponse:
+class GetResourceResponse(_XmdsResponse):
     def __init__(self):
-        self.content = None
+        super(GetResourceResponse, self).__init__()
 
     def parse(self, text):
         if text and len(text) > 0:
@@ -335,9 +342,9 @@ class SubmitStatsParam(_XmlParam):
         )
 
 
-class SuccessResponse(object):
+class SuccessResponse(_XmdsResponse):
     def __init__(self):
-        self.content = None
+        super(SuccessResponse, self).__init__()
 
     def parse(self, text):
         if text:

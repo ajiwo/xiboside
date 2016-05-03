@@ -2,8 +2,10 @@ import base64
 import exceptions
 import logging
 import os
+import re
 import sys
 import uuid
+from hashlib import md5
 from suds import WebFault as SoapFault
 from suds.client import Client as SoapClient
 from xml.etree import ElementTree
@@ -131,6 +133,12 @@ class _XmdsResponse(object):
         except IOError:
             return False
 
+    def content_md5sum(self):
+        content = ''
+        if self.content:
+            content = self.content
+        return md5(content).hexdigest()
+
 
 class RegisterDisplayParam:
     def __init__(self, display_name='xiboside', display_type='android', version='1.0',
@@ -194,6 +202,15 @@ class RequiredFilesResponse(_XmdsResponse):
     def parse(self, text):
         if not text:
             return False
+
+        # Remove id attribute for resource file, seems unrelated but always change.
+        # doing this we can compute md5sum of the response then save a cache of this
+        # response. see XmdsThread.__xmds_cycle
+        text = re.sub(
+            r'(type="resource")(\s+id=".*")(\s+layout)',
+            r'\1\3',
+            text
+        )
 
         root = ElementTree.fromstring(text)
         if 'files' != root.tag:

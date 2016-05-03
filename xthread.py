@@ -32,7 +32,7 @@ class XmdsThread(QThread):
             os.mkdir(config.saveDir, 0o700)
         self.xmdsClient = xmds.Client(config.url)
         self.xmdsClient.set_keys(config.serverKey)
-        self.log.setLevel(logging.DEBUG)
+        self.log.setLevel(logging.ERROR)
 
     def __enter__(self):
         return self
@@ -119,6 +119,7 @@ class XmdsThread(QThread):
         param = xmds.RegisterDisplayParam()
         sched_resp = xmds.ScheduleResponse()
         sched_cache = self.config.saveDir + '/schedule.xml'
+        rf_cache = self.config.saveDir + '/rf.xml'
         collect_interval = 5
         while not self.__xmds_stop:
             self.log.info('__xmds_cycle started')
@@ -128,7 +129,12 @@ class XmdsThread(QThread):
                 if 'READY' == display.code:
                     collect_interval = display.details.get('collectInterval', 5)
 
-            self.__download(cl.send_request('RequiredFiles'))
+            rf = cl.send_request('RequiredFiles')
+            if isinstance(rf, xmds.RequiredFilesResponse):
+                if not md5sum_match(rf_cache, rf.content_md5sum()):
+                    rf.save_as(rf_cache)
+                    self.__download(rf)
+
             schedule = cl.send_request('Schedule')
             if schedule:
                 schedule.save_as(sched_cache)

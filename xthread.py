@@ -136,8 +136,9 @@ class XmdsThread(QThread):
                     self.__download(rf)
 
             schedule = cl.send_request('Schedule')
-            if schedule:
-                schedule.save_as(sched_cache)
+            if isinstance(schedule, xmds.ScheduleResponse):
+                if not md5sum_match(sched_cache, schedule.content_md5sum()):
+                    schedule.save_as(sched_cache)
             else:
                 if sched_resp.parse_file(sched_cache):
                     schedule = sched_resp

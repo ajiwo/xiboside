@@ -30,7 +30,15 @@ class Client:
         self.connect()
 
     def __set_identity(self):
-        node = uuid.getnode()  # TODO: Explicit network interface name eg: eth0, wlan0, ...
+        node = None
+        # Linux only, find mac address using ifconfig command. taken from uuid._ifconfig_getnode
+        for args in ('eth0', 'wlan0', 'en0'):  # TODO: other possible network interface name
+            node = uuid._find_mac('ifconfig', args, ['hwaddr', 'ether'], lambda i: i + 1)
+            if node:
+                break
+
+        if node is None:
+            raise RuntimeError("No network interface found.")
         self.__mac_address = ':'.join([str('%012x' % node)[x:x + 2] for x in range(0, 12, 2)])
         url = 'xiboside://%s/%s/%s' % (sys.platform, os.name, self.__mac_address)
         self.__keys['hardware'] = uuid.uuid3(uuid.NAMESPACE_URL, url)

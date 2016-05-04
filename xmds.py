@@ -31,11 +31,17 @@ class Client:
 
     def __set_identity(self):
         node = None
-        # Linux only, find mac address using ifconfig command. taken from uuid._ifconfig_getnode
-        for args in ('eth0', 'wlan0', 'en0'):  # TODO: other possible network interface name
-            node = uuid._find_mac('ifconfig', args, ['hwaddr', 'ether'], lambda i: i + 1)
-            if node:
-                break
+        if sys.platform == 'win32':
+            for getter in [uuid._netbios_getnode, uuid._ipconfig_getnode]:
+                node = getter()
+                if node:
+                    break
+        else:
+            # Linux only, find mac address using ifconfig command. taken from uuid._ifconfig_getnode
+            for args in ('eth0', 'wlan0', 'en0'):  # TODO: other possible network interface name
+                node = uuid._find_mac('ifconfig', args, ['hwaddr', 'ether'], lambda i: i + 1)
+                if node:
+                    break
 
         if node is None:
             raise RuntimeError("No network interface found.")

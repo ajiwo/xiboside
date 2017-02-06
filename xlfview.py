@@ -223,7 +223,10 @@ class VideoMediaView(MediaView):
                 else:
                     part = line.split("=")
                     if 'ID_LENGTH' == part[0]:
-                        self._play_timer.setInterval(int(1000 * float(part[1])))
+                        if float(self._duration) > 0:  # user set the video duration manually.
+                            self._play_timer.setInterval(int(1000 * float(self._duration)))
+                        else:  # use duration found by mplayer.
+                            self._play_timer.setInterval(int(1000 * float(part[1])))
 
 
 class WebMediaView(MediaView):

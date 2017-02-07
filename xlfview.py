@@ -303,7 +303,7 @@ class RegionView:
         # for media ...
 
     def play(self):
-        if self._stop:
+        if self._stop or self._media_length < 1:
             return None
         self._media_view[self._media_index].play()
 

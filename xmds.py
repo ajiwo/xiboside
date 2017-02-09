@@ -133,9 +133,10 @@ class _XmdsResponse(object):
             return 0
         try:
             with open(path, 'w') as f:
-                written = f.write(self.content)
+                f.write(self.content)
                 f.flush()
                 os.fsync(f.fileno())
+            written = os.stat(path).st_size
         except IOError:
             written = 0
         return written

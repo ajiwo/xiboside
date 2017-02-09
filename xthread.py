@@ -24,6 +24,7 @@ class XmdsThread(QThread):
         self.__hardware_key = None
         self.__xmds_stop = False
         self.__xmds_running = False
+        self.__ss_param = None
         self.single_shot = False
         self.layout_id = '0'
         self.schedule_id = '0'
@@ -54,6 +55,18 @@ class XmdsThread(QThread):
     def __str_to_epoch(self, time_str):
         seconds = calendar.timegm(time.strptime(time_str, self.config.strTimeFmt))
         return seconds - self.config.cmsTzOffset
+
+    def __epoch_to_str(self, time_str):
+        seconds = float(time_str)
+        return time.strftime(self.config.strTimeFmt, time.gmtime(seconds + self.config.cmsTzOffset))
+
+    def __submit_stats(self):
+        if isinstance(self.__ss_param, xmds.SubmitStatsParam):
+            cl = self.xmdsClient
+            resp = cl.send_request('SubmitStats', self.__ss_param)
+            success = xmds.SuccessResponse().parse(resp)
+            if success:
+                self.__ss_param = None
 
     def __download(self, req_file_entry=None):
         if not req_file_entry or not req_file_entry.files:
@@ -166,6 +179,7 @@ class XmdsThread(QThread):
             self.log.debug('emitting layout_sig(%s, %s, (%d, %d))' %
                            (self.layout_id, self.schedule_id, self.layout_time[0], self.layout_time[1]))
             self.layout_signal.emit(self.layout_id, self.schedule_id, self.layout_time)
+            self.__submit_stats()
             if self.single_shot:
                 break
             next_collect_time = time.time() + float(collect_interval)
@@ -185,6 +199,19 @@ class XmdsThread(QThread):
     # def quit(self):
     #     self.stop()
     #     return super(XmdsThread, self).quit()
+
+    def queue_stats(self, type_, from_date, to_date, schedule_id, layout_id, media_id):
+        if self.__ss_param is None:
+            self.__ss_param = xmds.SubmitStatsParam()
+
+        self.__ss_param.add(
+            type_,
+            self.__epoch_to_str(from_date),
+            self.__epoch_to_str(to_date),
+            schedule_id,
+            layout_id,
+            media_id
+        )
 
 
 def md5sum_match(file_path, md5sum):

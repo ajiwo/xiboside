@@ -96,6 +96,14 @@ class MediaView(QObject):
     def mark_finished(self):
         if not self.is_finished():
             self._finished = time.time()
+            self._parent.queue_stats(
+                'media',
+                self._started,
+                self._finished,
+                self._schedule_id,
+                self._layout_id,
+                self._id
+            )
 
     def is_started(self):
         return self._started > 0

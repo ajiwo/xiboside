@@ -10,6 +10,15 @@ from xlfview import RegionView
 from xthread import XmdsThread
 
 
+class CentralWidget(QWidget):
+    def __init__(self, xmds, parent):
+        super(CentralWidget, self).__init__(parent)
+        self._xmds = xmds
+
+    def queue_stats(self, type_, from_date, to_date, schedule_id, layout_id, media_id):
+        self._xmds.queue_stats(type_, from_date, to_date, schedule_id, layout_id, media_id)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, config):
         super(MainWindow, self).__init__()
@@ -21,11 +30,11 @@ class MainWindow(QMainWindow):
 
         self._layout_id = None
         self._layout_time = (0, 0)
-        self._central_widget = QWidget(self)
+        self.setup_xmds()
+        self._central_widget = CentralWidget(self._xmds, self)
         self._layout_timer = QTimer()
         self._layout_timer.setSingleShot(True)
         self._layout_timer.timeout.connect(self.stop)
-        self.setup_xmds()
         self.setCentralWidget(self._central_widget)
 
     def __enter__(self):
@@ -86,5 +95,5 @@ class MainWindow(QMainWindow):
                 view.stop()
         del self._region_view[:]
         self._central_widget = None
-        self._central_widget = QWidget(self)
+        self._central_widget = CentralWidget(self._xmds, self)
         self.setCentralWidget(self._central_widget)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import signal
 import sys
 import os
 from PySide.QtGui import QApplication
@@ -7,6 +8,7 @@ from PySide.QtCore import QTimer
 import ui
 import xibo
 import argparse
+
 
 if __name__ == '__main__':
     config_file = 'xiboside_config.json'
@@ -23,6 +25,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     rect = app.desktop().screenGeometry()
     cfg = xibo.XiboConfig(args.config)
+
+    signal.signal(signal.SIGINT, lambda s, f: app.quit())
 
     if not os.path.isfile(args.config):
         print

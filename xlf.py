@@ -71,9 +71,14 @@ class Xlf:
             'height': node.attrib['height'],
             'left': node.attrib['left'],
             'top': node.attrib['top'],
+            'userId': node.attrib['userId'],
+            'zindex': '0',
             'media': [],
             'options': {}
         }
+
+        if node.attrib.has_key('zindex'):
+            region['zindex'] = node.attrib['zindex']
 
         for child in node:
             if 'media' == child.tag:

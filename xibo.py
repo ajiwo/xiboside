@@ -13,6 +13,8 @@ class XiboConfig:
         self.cmsTzOffset = None
         self.res_file_ext = None
         self.layout_file_ext = None
+        self.xmdsVersion = None
+        self.xmrPubUrl = None
 
         self.load()
         pass
@@ -26,7 +28,9 @@ class XiboConfig:
             'strTimeFmt': '%Y-%m-%d %H:%M:%S',
             'cmsTzOffset': 7 * 3600,  # UTC+7
             'res_file_ext': '.html',
-            'layout_file_ext': '.xml'
+            'layout_file_ext': '.xml',
+            'xmdsVersion': 4,
+            'xmrPubUrl': 'tcp://localhost:5550',
         }
 
     def load(self):
@@ -56,4 +60,4 @@ class XiboConfig:
             data[k] = getattr(self, k)
 
         with open(self.path, 'w') as f:
-            json.dump(data, f, indent=4, separators=(',', ': '))
+            json.dump(data, f, indent=4, separators=(',', ': '), sort_keys=True)

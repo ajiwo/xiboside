@@ -9,6 +9,9 @@ from PySide.QtCore import Signal
 from PySide.QtCore import Slot
 
 import xmds
+import xmr
+
+from Crypto.PublicKey import RSA
 
 
 class XmdsThread(QThread):
@@ -222,6 +225,43 @@ class XmdsThread(QThread):
             layout_id,
             media_id
         )
+
+
+class XmrThread(QThread):
+    log = logging.getLogger('xiboside.XmrThread')
+    message_signal = Signal(list)
+
+    def __init__(self, config, parent):
+        super(XmrThread, self).__init__(parent)
+        self._config = config
+        self._channel = ''
+        self._pubkey = ''
+        self._privkey = ''
+        self._prepare_keys()
+        self.__sub = xmr.Subscriber(self._config.xmrUrl, self._channel, self._decrypt_message)
+
+    def run(self):
+        self.__sub.run()
+
+    def stop(self):
+        self.__sub.stop()
+
+    def _decrypt_message(self, messages):
+        pass
+
+    def _prepare_keys(self):
+        rsa = RSA.generate(2048)
+        self._privkey = rsa.exportKey()
+        self._pubkey = rsa.publickey().exportKey()
+        self._channel = md5("%d %s" % (time.time(), self._config.xmrUrl)).hexdigest()
+
+    @property
+    def pubkey(self):
+        return self._pubkey
+
+    @property
+    def channel(self):
+        return self._channel
 
 
 def md5sum_match(file_path, md5sum):

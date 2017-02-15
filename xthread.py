@@ -82,6 +82,7 @@ class XmdsThread(QThread):
 
             resp = None
             file_path = None
+            downloaded = False
             if 'resource' == entry.type:
                 file_path = "{0}/{1}_{2}_{3}{4}".format(self.config.saveDir,
                                                         entry.layoutid, entry.regionid,
@@ -94,6 +95,15 @@ class XmdsThread(QThread):
                 # print 'Downloading {0}'.format(file_path)
                 self.downloading_signal.emit(entry.type, file_path)
                 resp = cl.send_request('GetResource', param)
+                if resp:
+                    try:
+                        with open(file_path, 'wb') as f:
+                            f.write(resp.content)
+                            f.flush()
+                            os.fsync(f.fileno())
+                            downloaded = True
+                    except IOError:
+                        self.log.error('Download failed: %s' % file_path)
             elif entry.type in ('media', 'layout'):
                 file_ext = ''
                 if 'layout' == entry.type:
@@ -105,19 +115,19 @@ class XmdsThread(QThread):
                 param = get_file_param
                 param.fileId = entry.id
                 param.fileType = entry.type
-                param.chuckSize = entry.size
-
                 self.downloading_signal.emit(entry.type, file_path)
-                resp = cl.send_request('GetFile', param)
 
-            downloaded = False
-            if resp:
                 try:
                     with open(file_path, 'wb') as f:
-                        f.write(resp.content)
-                        f.flush()
-                        os.fsync(f.fileno())
-                        downloaded = True
+                        for offset in range(0, int(float(entry.size)), 1024*1024*2):
+                            param.chuckSize = str(1024*1024*2)
+                            param.chunkOffset = str(offset)
+                            resp = cl.send_request('GetFile', param)
+                            if resp:
+                                f.write(resp.content)
+                                f.flush()
+                                os.fsync(f.fileno())
+                                downloaded = True
                 except IOError:
                     self.log.error('Download failed: %s' % file_path)
 

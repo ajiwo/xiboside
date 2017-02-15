@@ -7,7 +7,7 @@ A Xibo Player for Linux (probably other platform where Python, Qt, and MPlayer a
 xiboside requires Python2, [suds](https://fedorahosted.org/suds/), [PySide](http://wiki.qt.io/PySide), and [MPlayer](http://www.mplayerhq.hu/)
 
 On Ubuntu 14.04, this line will satisfy the dependencies:  
-`sudo apt-get install python-suds python-pyside mplayer`
+`sudo apt-get install python-crypto python-suds python-pyside mplayer`
 
 .
 

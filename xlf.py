@@ -66,19 +66,19 @@ class Xlf:
             return None
 
         region = {
-            'id': node.attrib['id'],
-            'width': node.attrib['width'],
-            'height': node.attrib['height'],
-            'left': node.attrib['left'],
-            'top': node.attrib['top'],
-            'userId': node.attrib['userId'],
+            'id': '',
+            'width': '',
+            'height': '',
+            'left': '',
+            'top': '',
+            'userId': '',
             'zindex': '0',
             'media': [],
             'options': {}
         }
-
-        if node.attrib.has_key('zindex'):
-            region['zindex'] = node.attrib['zindex']
+        for k, v in node.attrib.iteritems():
+            if k in region:
+                region[k] = v
 
         for child in node:
             if 'media' == child.tag:
@@ -99,13 +99,16 @@ class Xlf:
             return None
 
         media = {
-            'id': node.attrib['id'],
-            'type': node.attrib['type'],
-            'duration': node.attrib['duration'],
-            'render': node.attrib['render'],
+            'id': '',
+            'type': '',
+            'duration': '',
+            'render': '',
             'options': {},
             'raws': {}
         }
+        for k, v in node.attrib.iteritems():
+            if k in media:
+                media[k] = v
 
         for child in node:
             if 'options' == child.tag:

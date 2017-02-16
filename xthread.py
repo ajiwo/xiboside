@@ -1,3 +1,4 @@
+import base64
 import calendar
 import logging
 import os
@@ -8,6 +9,7 @@ from PySide.QtCore import QThread
 from PySide.QtCore import Signal
 from PySide.QtCore import Slot
 
+import util
 import xmds
 import xmr
 
@@ -27,6 +29,8 @@ class XmdsThread(QThread):
         self.__hardware_key = None
         self.__xmds_stop = False
         self.__xmds_running = False
+        self.__xmr_pubkey = ''
+        self.__xmr_channel = ''
         self.__ss_param = None
         self.single_shot = False
         self.layout_id = '0'
@@ -143,6 +147,8 @@ class XmdsThread(QThread):
         self.__xmds_stop = False
         cl = self.xmdsClient
         param = xmds.RegisterDisplayParam()
+        param.xmrChannel = self.__xmr_channel
+        param.xmrPubKey = self.__xmr_pubkey
         sched_resp = xmds.ScheduleResponse()
         sched_cache = self.config.saveDir + '/schedule.xml'
         rf_cache = self.config.saveDir + '/rf.xml'
@@ -213,6 +219,10 @@ class XmdsThread(QThread):
     #     self.stop()
     #     return super(XmdsThread, self).quit()
 
+    def set_xmr_info(self, channel, pubkey):
+        self.__xmr_channel = channel
+        self.__xmr_pubkey = pubkey
+
     def queue_stats(self, type_, from_date, to_date, schedule_id, layout_id, media_id):
         if self.__ss_param is None:
             self.__ss_param = xmds.SubmitStatsParam()
@@ -238,7 +248,7 @@ class XmrThread(QThread):
         self._pubkey = ''
         self._privkey = ''
         self._prepare_keys()
-        self.__sub = xmr.Subscriber(self._config.xmrUrl, self._channel, self._decrypt_message)
+        self.__sub = xmr.Subscriber(self._config.xmrPubUrl, self._channel, self._decrypt_message)
 
     def run(self):
         self.__sub.run()
@@ -247,13 +257,16 @@ class XmrThread(QThread):
         self.__sub.stop()
 
     def _decrypt_message(self, messages):
-        pass
+        sealed_data = base64.decodestring(messages[1])
+        env_key = base64.decodestring(messages[0])
+        # TODO: just print the decrypted message for now
+        print util.openssl_open(sealed_data, env_key, self._privkey)
 
     def _prepare_keys(self):
         rsa = RSA.generate(2048)
         self._privkey = rsa.exportKey()
         self._pubkey = rsa.publickey().exportKey()
-        self._channel = md5("%d %s" % (time.time(), self._config.xmrUrl)).hexdigest()
+        self._channel = md5("%d %s" % (time.time(), self._config.xmrPubUrl)).hexdigest()
 
     @property
     def pubkey(self):

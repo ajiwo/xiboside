@@ -79,10 +79,21 @@ class Client:
         try:
             if 'registerDisplay'.lower() == method.lower():
                 params.macAddress = self.__mac_address
-                text = self.__client.service.RegisterDisplay(self.__keys['server'], self.__keys['hardware'],
-                                                             getattr(params, 'name'), getattr(params, 'type'),
-                                                             getattr(params, 'version'), getattr(params, 'code'),
-                                                             getattr(params, 'os'), getattr(params, 'macAddress'))
+                if self.__ver == 4:
+                    text = self.__client.service.RegisterDisplay(
+                        self.__keys['server'], self.__keys['hardware'],
+                        getattr(params, 'name'), getattr(params, 'type'),
+                        getattr(params, 'version'), getattr(params, 'code'),
+                        getattr(params, 'os'), getattr(params, 'macAddress')
+                    )
+                elif self.__ver == 5:
+                    text = self.__client.service.RegisterDisplay(
+                        self.__keys['server'], self.__keys['hardware'],
+                        getattr(params, 'name'), getattr(params, 'type'),
+                        getattr(params, 'version'), getattr(params, 'code'),
+                        getattr(params, 'os'), getattr(params, 'macAddress'),
+                        getattr(params, 'xmrChannel'), getattr(params, 'xmrPubKey')
+                    )
                 tmp = RegisterDisplayResponse()
 
             elif 'requiredFiles'.lower() == method.lower():
@@ -164,6 +175,9 @@ class RegisterDisplayParam:
         self.code = code
         self.os = operating_system
         self.macAddress = mac_address
+        # xmds v5
+        self.xmrChannel = None
+        self.xmrPubKey = None
 
 
 class RegisterDisplayResponse:
@@ -173,6 +187,8 @@ class RegisterDisplayResponse:
         self.message = None
         self.version_instructions = None
         self.details = {}
+        # xmds v5 commands tag
+        self.commands = {}
         self.content = None
 
     def parse(self, text):
@@ -189,7 +205,12 @@ class RegisterDisplayResponse:
 
         for detail in root:
             if detail.text:
-                self.details[detail.tag] = detail.text
+                # TODO: what is this commands tag? just store the value for now.
+                if 'commands' == detail.tag:
+                    for command in detail:
+                        self.commands[command.tag] = command.text
+                else:
+                    self.details[detail.tag] = detail.text
 
         self.content = text
         return True

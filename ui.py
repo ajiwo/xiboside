@@ -8,6 +8,7 @@ from PySide.QtGui import QWidget
 import xlf
 from xlfview import RegionView
 from xthread import XmdsThread
+from xthread import XmrThread
 
 
 class CentralWidget(QWidget):
@@ -26,10 +27,12 @@ class MainWindow(QMainWindow):
         self._config = config
         self._region_view = []
         self._xmds = None
+        self._xmr = None
         self._running = False
 
         self._layout_id = None
         self._layout_time = (0, 0)
+        self.setup_xmr()
         self.setup_xmds()
         self._central_widget = CentralWidget(self._xmds, self)
         self._layout_timer = QTimer()
@@ -43,6 +46,8 @@ class MainWindow(QMainWindow):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
         self._xmds.stop()
+        if self._xmr:
+            self._xmr.stop()
         if exc_tb or exc_type or exc_val:
             pass
 
@@ -50,7 +55,14 @@ class MainWindow(QMainWindow):
         self._xmds = XmdsThread(self._config, self)
         self._xmds.layout_signal.connect(self.set_layout)
         self._xmds.downloaded_signal.connect(self.item_downloaded)
+        if self._config.xmdsVersion > 4:
+            self._xmds.set_xmr_info(self._xmr.channel, self._xmr.pubkey)
         self._xmds.start(QThread.IdlePriority)
+
+    def setup_xmr(self):
+        if self._config.xmdsVersion > 4:
+            self._xmr = XmrThread(self._config, self)
+            self._xmr.start(QThread.IdlePriority)
 
     def set_layout(self, layout_id, schedule_id, layout_time):
         if self._layout_id != layout_id:

@@ -5,6 +5,7 @@ import zmq
 class Subscriber:
     def __init__(self, url, channel, callback):
         self._url = url
+        self._heartbeat = "H"
         self._channel = channel
         self._callback = callback
         self._context = zmq.Context()
@@ -14,6 +15,7 @@ class Subscriber:
     def run(self):
         sub = self._context.socket(zmq.SUB)
         sub.connect(self._url)
+        sub.setsockopt_string(zmq.SUBSCRIBE, self._heartbeat.decode('ascii'))
         sub.setsockopt_string(zmq.SUBSCRIBE, self._channel.decode('ascii'))
 
         push = self._context.socket(zmq.PUSH)
@@ -31,7 +33,7 @@ class Subscriber:
             socks = dict(poller.poll())
             if sub in socks and socks[sub] == zmq.POLLIN:
                 message = sub.recv_multipart()
-                if len(message) == 3 and self._channel == message[0]:
+                if len(message) == 3 and message[0] in (self._heartbeat, self._channel):
                     if callable(self._callback):
                         self._callback(message[1:])
             if pull in socks and socks[pull] == zmq.POLLIN:

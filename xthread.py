@@ -248,13 +248,19 @@ class XmrThread(QThread):
         self._pubkey = ''
         self._privkey = ''
         self._prepare_keys()
-        self.__sub = xmr.Subscriber(self._config.xmrPubUrl, self._channel, self._decrypt_message)
+        self.__sub = xmr.Subscriber(self._config.xmrPubUrl, self._channel, self._handle_message)
 
     def run(self):
         self.__sub.run()
 
     def stop(self):
         self.__sub.stop()
+
+    def _handle_message(self, messages):
+        if messages[0] == '':
+            pass  # heartbeat, sign that xmr setup is okay
+        else:
+            self._decrypt_message(messages)
 
     def _decrypt_message(self, messages):
         sealed_data = base64.decodestring(messages[1])

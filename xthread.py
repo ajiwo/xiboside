@@ -5,9 +5,9 @@ import os
 import time
 from hashlib import md5
 
-from PySide.QtCore import QThread
-from PySide.QtCore import Signal
-from PySide.QtCore import Slot
+from PySide2.QtCore import QThread
+from PySide2.QtCore import Signal
+from PySide2.QtCore import Slot
 
 import util
 import xmds
@@ -105,7 +105,7 @@ class XmdsThread(QThread):
                 if resp:
                     try:
                         with open(file_path, 'wb') as f:
-                            f.write(resp.content)
+                            f.write(resp.content.encode('utf-8'))
                             f.flush()
                             os.fsync(f.fileno())
                             downloaded = True
@@ -266,13 +266,13 @@ class XmrThread(QThread):
         sealed_data = base64.decodestring(messages[1])
         env_key = base64.decodestring(messages[0])
         # TODO: just print the decrypted message for now
-        print util.openssl_open(sealed_data, env_key, self._privkey)
+        print(util.openssl_open(sealed_data, env_key, self._privkey))
 
     def _prepare_keys(self):
         rsa = RSA.generate(2048)
         self._privkey = rsa.exportKey()
         self._pubkey = rsa.publickey().exportKey()
-        self._channel = md5("%d %s" % (time.time(), self._config.xmrPubUrl)).hexdigest()
+        self._channel = md5(("%d %s" % (time.time(), self._config.xmrPubUrl)).encode('utf-8')).hexdigest()
 
     @property
     def pubkey(self):

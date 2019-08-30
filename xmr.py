@@ -15,8 +15,8 @@ class Subscriber:
     def run(self):
         sub = self._context.socket(zmq.SUB)
         sub.connect(self._url)
-        sub.setsockopt_string(zmq.SUBSCRIBE, self._heartbeat.decode('ascii'))
-        sub.setsockopt_string(zmq.SUBSCRIBE, self._channel.decode('ascii'))
+        sub.setsockopt_string(zmq.SUBSCRIBE, self._heartbeat)
+        sub.setsockopt_string(zmq.SUBSCRIBE, self._channel)
 
         push = self._context.socket(zmq.PUSH)
         port = push.bind_to_random_port('tcp://127.0.0.1')

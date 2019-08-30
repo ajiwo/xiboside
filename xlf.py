@@ -7,10 +7,10 @@ def parse_file(path):
     layout = None
     try:
         _xlf = Xlf(path)
-    except ElementTree.ParseError, err:
+    except ElementTree.ParseError as err:
         log.error(err.message)
         return None
-    except IOError, err:
+    except IOError as err:
         log.error("%s: %s" % (err.strerror, err.filename))
         return None
     if _xlf.layout:
@@ -44,7 +44,7 @@ class Xlf:
             self.layout = None
             return None
 
-        for k, v in root.attrib.iteritems():
+        for k, v in root.attrib.items():
             if k in layout:
                 layout[k] = v
 
@@ -76,7 +76,7 @@ class Xlf:
             'media': [],
             'options': {}
         }
-        for k, v in node.attrib.iteritems():
+        for k, v in node.attrib.items():
             if k in region:
                 region[k] = v
 
@@ -106,7 +106,7 @@ class Xlf:
             'options': {},
             'raws': {}
         }
-        for k, v in node.attrib.iteritems():
+        for k, v in node.attrib.items():
             if k in media:
                 media[k] = v
 

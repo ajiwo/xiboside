@@ -1,5 +1,5 @@
 import base64
-import exceptions
+#import exceptions
 import logging
 import os
 import re
@@ -30,18 +30,18 @@ class Client:
         self.connect()
 
     def __set_identity(self):
-        node = None
-        if sys.platform == 'win32':
-            for getter in [uuid._netbios_getnode, uuid._ipconfig_getnode]:
-                node = getter()
-                if node:
-                    break
-        else:
-            # Linux only, find mac address using ifconfig command. taken from uuid._ifconfig_getnode
-            for args in ('eth0', 'wlan0', 'en0'):  # TODO: other possible network interface name
-                node = uuid._find_mac('ifconfig', args, ['hwaddr', 'ether'], lambda i: i + 1)
-                if node:
-                    break
+        node = uuid.getnode()
+        # if sys.platform == 'win32':
+        #     for getter in [uuid._netbios_getnode, uuid._ipconfig_getnode]:
+        #         node = getter()
+        #         if node:
+        #             break
+        # else:
+        #     # Linux only, find mac address using ifconfig command. taken from uuid._ifconfig_getnode
+        #     #for args in ('eth0', 'wlan0', 'en0', 'wlp1s0'):  # TODO: other possible network interface name
+        #         node = uuid._find_mac('ifconfig', args, ['hwaddr', 'ether'], lambda i: i + 1)
+        #         if node:
+        #             break
 
         if node is None:
             raise RuntimeError("No network interface found.")
@@ -59,7 +59,8 @@ class Client:
     def connect(self):
         try:
             self.__client = SoapClient(self.__url + "/xmds.php?WSDL&v=" + str(self.__ver))
-        except exceptions.IOError, err:
+            self.__client.options.location = self.__url + "/xmds.php?v=" + str(self.__ver)
+        except IOError as err:
             log.error(err)
             self.__client = None
 
@@ -123,7 +124,7 @@ class Client:
 
         except SoapFault as err:
             log.error(err)
-        except exceptions.IOError as err:
+        except IOError as err:
             log.error(err)
 
         if tmp and tmp.parse(text):
@@ -163,7 +164,7 @@ class _XmdsResponse(object):
         content = ''
         if self.content:
             content = self.content
-        return md5(content).hexdigest()
+        return md5(content.encode('utf-8')).hexdigest()
 
 
 class RegisterDisplayParam:
@@ -199,7 +200,7 @@ class RegisterDisplayResponse:
         if 'display' != root.tag:
             return 0
 
-        for key, val in root.attrib.iteritems():
+        for key, val in root.attrib.items():
             if hasattr(self, key):
                 setattr(self, key, val)
 
@@ -257,7 +258,7 @@ class RequiredFilesResponse(_XmdsResponse):
             if not 'file' == child.tag:
                 continue
             entry = RequiredFilesEntry()
-            for key, val in child.attrib.iteritems():
+            for key, val in child.attrib.items():
                 if hasattr(entry, key):
                     setattr(entry, key, val)
 
@@ -295,13 +296,13 @@ class ScheduleResponse(_XmdsResponse):
         for child in root:
             if 'layout' == child.tag:
                 layout = ScheduleLayoutEntry()
-                for key, val in child.attrib.iteritems():
+                for key, val in child.attrib.items():
                     if hasattr(layout, key):
                         setattr(layout, key, val)
                 self.layouts.append(layout)
 
             elif 'default' == child.tag:
-                for key, val in child.attrib.iteritems():
+                for key, val in child.attrib.items():
                     if 'file' == key:
                         self.layout = val
 
@@ -328,7 +329,7 @@ class GetFileResponse(_XmdsResponse):
 
     def parse(self, text):
         if text and len(text) > 0:
-            self.content = base64.decodestring(text)
+            self.content = base64.decodestring(text.encode('utf-8'))
             return True
 
         return False

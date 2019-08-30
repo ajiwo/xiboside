@@ -43,18 +43,18 @@ class XiboConfig:
                     tmp = {}
 
         # load user configuration
-        for k, v in tmp.iteritems():
+        for k, v in tmp.items():
             if getattr(self, k) is None:
                 setattr(self, k, v)
 
         # load default values
-        for k, v in self.defaults.iteritems():
+        for k, v in self.defaults.items():
             if getattr(self, k) is None:
                 setattr(self, k, v)
 
     def save(self):
         data = {}
-        for k, v in self.defaults.iteritems():
+        for k, v in self.defaults.items():
             if 'path' == k:
                 continue
             data[k] = getattr(self, k)

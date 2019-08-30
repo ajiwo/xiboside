@@ -2,13 +2,12 @@
 import signal
 import sys
 import os
-from PySide.QtGui import QApplication
-from PySide.QtCore import QTimer
+from PySide2.QtWidgets import QApplication
+from PySide2.QtCore import QTimer
 
 import ui
 import xibo
 import argparse
-
 
 if __name__ == '__main__':
     config_file = 'xiboside_config.json'
@@ -29,12 +28,10 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, lambda s, f: app.quit())
 
     if not os.path.isfile(args.config):
-        print
-        print '  The configuration file %s is not exists' % args.config
-        print '  Creating default configuration...'
+        print('  The configuration file %s is not exists' % args.config)
+        print('  Creating default configuration...')
         cfg.save()
-        print "  Please edit the '%s' file and then rerun xiboside again" % args.config
-        print
+        print("  Please edit the '%s' file and then rerun xiboside again" % args.config)
         sys.exit(0)
 
     ret = -1
@@ -48,7 +45,10 @@ if __name__ == '__main__':
         w.setGeometry(rect)
         w.show()
         ret = app.exec_()
-        print 'Exiting, please wait...'
-    print 'Saving configuration to %s' % cfg.path
+        print('Exiting, please wait...')
+    print('Saving configuration to %s' % cfg.path)
     cfg.save()
     sys.exit(ret)
+
+# set env to debug web page
+# QTWEBENGINE_REMOTE_DEBUGGING=7800

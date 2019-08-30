@@ -2,20 +2,20 @@ import os
 import signal
 import time
 
-from PySide.QtCore import QObject
-from PySide.QtCore import QProcess
-from PySide.QtCore import QRect
-from PySide.QtCore import QTimer
-from PySide.QtCore import QUrl
-from PySide.QtCore import Qt
-from PySide.QtCore import SIGNAL
-from PySide.QtCore import Signal
-from PySide.QtCore import Slot
-from PySide.QtGui import QImage
-from PySide.QtGui import QLabel
-from PySide.QtGui import QPixmap
-from PySide.QtGui import QWidget
-from PySide.QtWebKit import QWebView
+from PySide2.QtCore import QObject
+from PySide2.QtCore import QProcess
+from PySide2.QtCore import QRect
+from PySide2.QtCore import QTimer
+from PySide2.QtCore import QUrl
+from PySide2.QtCore import Qt
+from PySide2.QtCore import SIGNAL
+from PySide2.QtCore import Signal
+from PySide2.QtCore import Slot
+from PySide2.QtGui import QImage
+from PySide2.QtWidgets import QLabel
+from PySide2.QtGui import QPixmap
+from PySide2.QtWidgets import QWidget
+from PySide2.QtWebEngineWidgets import QWebEngineView as QWebView
 
 
 class MediaView(QObject):
@@ -244,8 +244,8 @@ class WebMediaView(MediaView):
         self._widget.setGeometry(media['_geometry'])
         self.set_default_widget_prop()
         self._widget.setDisabled(True)
-        self._widget.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
-        self._widget.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+        # self._widget.page().mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        # self._widget.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     @Slot()
     def play(self):

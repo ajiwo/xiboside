@@ -1,9 +1,9 @@
 import time
 
-from PySide.QtCore import QThread
-from PySide.QtCore import QTimer
-from PySide.QtGui import QMainWindow
-from PySide.QtGui import QWidget
+from PySide2.QtCore import QThread
+from PySide2.QtCore import QTimer
+from PySide2.QtWidgets import QMainWindow
+from PySide2.QtWidgets import QWidget
 
 import xlf
 from xlfview import RegionView

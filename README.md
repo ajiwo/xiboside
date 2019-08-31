@@ -2,14 +2,28 @@
 A Xibo Player for Linux (probably other platform where Python, Qt, and MPlayer are available)
 
 
+### Installation:
 
-### Requirements:
-xiboside requires Python2, [suds](https://fedorahosted.org/suds/), [PySide](http://wiki.qt.io/PySide), and [MPlayer](http://www.mplayerhq.hu/)
+#### Install required packages
+On Ubuntu 18.04:
+`sudo apt install python3.7-dev python3.7-venv mplayer`
 
-On Ubuntu 14.04, this line will satisfy the dependencies:  
-`sudo apt-get install python-crypto python-suds python-pyside mplayer`
+#### Download
+```
+git clone https://github.com/ajiwo/xiboside
+cd xiboside
+git checkout py37
+```
+#### Setup virtualenv
+```
+python3.7 -m venv /home/me/env-01
+source /home/me/env-01/bin/activate
+# cd /path/to/xiboside
+pip3.7 install -r requirements.txt
+```
+Then, optionally, replace the default python interpreter by replacing the first line of `xiboside` file
 
-.
+`#!/usr/bin/env python` to `#!/home/me/env-01/bin/python3.7`
 
 ### Running xiboside
 ```
@@ -57,4 +71,5 @@ Supported Media type:
 * Video (always scaled, aspect ratio ignored)
 * Webpage: native, embedded, text, clock
 * Image (always scaled, aspect ratio ignored)
+
 

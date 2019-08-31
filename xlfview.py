@@ -3,6 +3,7 @@ import signal
 import time
 
 from PySide2.QtCore import QObject
+from PySide2.QtCore import QRect
 from PySide2.QtCore import QProcess
 from PySide2.QtCore import QRect
 from PySide2.QtCore import QTimer
@@ -189,11 +190,15 @@ class VideoMediaView(MediaView):
     def play(self):
         self._finished = 0
         path = "%s/%s" % (self._save_dir, self._options['uri'])
+        width = self._widget.geometry().width()
+        height = self._widget.geometry().height()
         self._widget.show()
         args = [
             '-slave', '-identify', '-input',
             'nodefault-bindings:conf=/dev/null',
             '-wid', str(int(self._widget.winId())),
+            '-xy', str(width),
+            '-y', str(height),
             path
         ]
         if self._mute:
@@ -209,7 +214,7 @@ class VideoMediaView(MediaView):
         self._stop_timer.start()
         self._stopping = True
         if self._process.state() == QProcess.ProcessState.Running:
-            self._process.write("quit\n")
+            self._process.write(b"quit\n")
             self._process.waitForFinished(50)
             self._process.close()
 
@@ -223,7 +228,7 @@ class VideoMediaView(MediaView):
         lines = self._process.readAllStandardOutput().split("\n")
         for line in lines:
             if not line.isEmpty():
-                if line.startsWith("Starting playback"):
+                if line.startsWith(b"Starting playback"):
                     self._widget.raise_()
                     self._play_timer.start()
                     self.started_signal.emit()
